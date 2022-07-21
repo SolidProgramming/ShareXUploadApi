@@ -6,8 +6,25 @@
     }
     public class FileService : IFileService
     {
-        private const string FOLDER = @"\\192.168.1.10\FileRunData\sharex\";
+        private string DATAFOLDER { get; set; }
 
+        public FileService()
+        {
+            DATAFOLDER = GetFolderPath();
+        }
+
+
+        private string GetFolderPath()
+        {
+            if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
+            {               
+                return Path.Combine(Directory.GetCurrentDirectory(), "appdata");
+            }
+            else
+            {
+                return @"\\192.168.1.10\FileRunData\sharex\";
+            }
+        }
 
         public async Task<(string? Message, HttpStatusCode StatusCode)> UploadAsync(HttpRequest request)
         {
@@ -15,7 +32,7 @@
             {
                 try
                 {
-                    using Stream stream = new FileStream(FOLDER + request.Form.Files[0].FileName, FileMode.Create);
+                    using Stream stream = new FileStream(Path.Combine(DATAFOLDER, request.Form.Files[0].FileName), FileMode.Create);
 
                     request.Form.Files[0].CopyTo(stream);
 

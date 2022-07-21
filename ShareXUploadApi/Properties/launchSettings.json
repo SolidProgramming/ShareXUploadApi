@@ -31,6 +31,9 @@
       "commandName": "Docker",
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+      "environmentVariables": {
+        "DOTNET_RUNNING_IN_CONTAINER": "true"
+      },
       "publishAllPorts": true,
       "useSSL": true
     }

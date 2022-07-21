@@ -36,7 +36,6 @@ app.MapPost("sharex/upload", async (IFileService fileService, HttpRequest reques
 
     if (StatusCode == HttpStatusCode.OK) return Results.Ok(Message);
 
-
     return Results.Problem(Message);
 });
 

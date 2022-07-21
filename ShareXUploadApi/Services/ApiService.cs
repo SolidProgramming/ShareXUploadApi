@@ -20,7 +20,6 @@ namespace ShareXUploadApi.Services
         public ApiService(HttpClient httpClient)
         {
             _HttpClient = httpClient;
-            _HttpClient.BaseAddress = new Uri("https://localhost:44395/sharex");
         }
 
         public Task<(string? Message, HttpStatusCode StatusCode)> DeleteAsync(string url)
