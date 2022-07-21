@@ -18,7 +18,7 @@
         {
             if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
             {               
-                return Path.Combine(Directory.GetCurrentDirectory(), "appdata");
+                return @"/sharex/";
             }
             else
             {
@@ -32,8 +32,8 @@
             {
                 try
                 {
-                    using Stream stream = new FileStream(Path.Combine(DATAFOLDER, request.Form.Files[0].FileName), FileMode.Create);
-
+                    using Stream stream = new FileStream(DATAFOLDER + request.Form.Files[0].FileName, FileMode.Create);
+                    Console.WriteLine("File saved in: " + DATAFOLDER + request.Form.Files[0].FileName);
                     request.Form.Files[0].CopyTo(stream);
 
                     return ("Upload successfull", HttpStatusCode.OK);
