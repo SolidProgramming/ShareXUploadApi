@@ -3,7 +3,6 @@ global using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,9 +20,24 @@ builder.Services.AddSingleton<IFileService, FileService>();
 
 var app = builder.Build();
 
-app.MapPost("sharex/upload", async (IFileService fileService, ILinkService linkService) =>
+app.MapPost("sharex/upload", async (IFileService fileService, HttpRequest request) =>
 {
-    
+    if (!request.Form.Files.Any())
+    {
+        return Results.BadRequest("No file uploaded");
+    }
+
+    if (request.Form.Files.Count > 1)
+    {
+        return Results.BadRequest("Too many files. Limit = 1");
+    }
+
+    (string? Message, HttpStatusCode StatusCode) = await fileService.UploadAsync(request);
+
+    if (StatusCode == HttpStatusCode.OK) return Results.Ok(Message);
+
+
+    return Results.Problem(Message);
 });
 
 app.MapGet("sharex/getsharelink", async (ILinkService linkService, [FromQuery] string guid) =>

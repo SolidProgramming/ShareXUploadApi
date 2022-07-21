@@ -10,7 +10,7 @@
         {
             return await Task.Run(() =>
             {
-                return ("", HttpStatusCode.OK);
+                return ("{Message: Test erfolgreich}", HttpStatusCode.OK);
             });
         }
     }
