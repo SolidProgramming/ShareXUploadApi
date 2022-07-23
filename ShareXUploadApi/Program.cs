@@ -12,16 +12,20 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
 
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ILinkService, LinkService>();
 builder.Services.AddSingleton<IFileService, FileService>();
+builder.Services.AddSingleton<IDBService, DBService>();
 
 var app = builder.Build();
 
-app.MapPost("sharex/upload", async (IFileService fileService, HttpRequest request) =>
-{
+app.MapPost("sharex/upload", async (IFileService fileService, IDBService dbService, HttpRequest request) =>
+{   
+    if (fileService is null) return Results.Problem("File Service not initialized");
+    if (dbService is null) return Results.Problem("DB Service not initialized");
+
     if (!request.Form.Files.Any())
     {
         return Results.BadRequest("No file uploaded");
@@ -52,12 +56,14 @@ app.MapGet("sharex/getsharelink", async (ILinkService linkService, [FromQuery] s
     return Results.Ok(Message);
 });
 
+
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
 
 app.UseHttpsRedirection();
 
