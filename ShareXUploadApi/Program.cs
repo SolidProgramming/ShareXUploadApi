@@ -22,7 +22,7 @@ builder.Services.AddSingleton<IDBService, DBService>();
 var app = builder.Build();
 
 app.MapPost("sharex/upload", async (IFileService fileService, IDBService dbService, HttpRequest request) =>
-{   
+{
     if (fileService is null) return Results.Problem("File Service not initialized");
     if (dbService is null) return Results.Problem("DB Service not initialized");
 
