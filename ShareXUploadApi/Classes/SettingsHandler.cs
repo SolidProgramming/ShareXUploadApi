@@ -14,12 +14,9 @@ namespace ShareXUploadApi.Classes
             using StreamReader r = new("Settings.json");
             string json = r.ReadToEnd();
 
-
             SettingsModel? settings = JsonSerializer.Deserialize<SettingsModel>(json);
 
             if (settings is null) return default;
-
-            if (typeof(T) == typeof(SettingsModel)) return (T)Convert.ChangeType(settings, typeof(T));
 
             return settings.GetSetting<T>();
 

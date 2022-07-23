@@ -2,7 +2,7 @@
 
 namespace ShareXUploadApi.Models
 {
-    public class DBSettingsModel : ISettingsMapping
+    public class DBSettingsModel
     {
         [JsonPropertyName("ip")]
         public string IP { get; set; }
@@ -15,7 +15,5 @@ namespace ShareXUploadApi.Models
 
         [JsonPropertyName("password")]
         public string Password { get; set; }
-        public DBSettingsModel DBSettings { get; }
-        public PathSettingsModel PathSettings { get; }
     }
 }

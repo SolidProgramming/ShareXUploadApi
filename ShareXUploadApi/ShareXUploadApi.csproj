@@ -18,6 +18,7 @@
   <ItemGroup>
     <Folder Include="Controllers\" />
     <Folder Include="Enums\" />
+    <Folder Include="Interfaces\" />
   </ItemGroup>
 
 </Project>

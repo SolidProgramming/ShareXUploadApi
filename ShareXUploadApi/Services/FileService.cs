@@ -6,43 +6,60 @@
     }
     public class FileService : IFileService
     {
-        private string DATAFOLDER { get; set; }
+        private readonly PathSettingsModel? _PathSettings;
+        private readonly ILogger<FileService> _Logger;
 
-        public FileService()
+        public FileService(ILogger<FileService> logger)
         {
-            DATAFOLDER = GetFolderPath();
-        }
+            _Logger = logger;
 
+            _PathSettings = SettingsHandler.ReadSettings<PathSettingsModel>();
 
-        private string GetFolderPath()
-        {
-            if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
-            {               
-                return @"/sharex/";
-            }
-            else
+            if (_PathSettings is null)
             {
-                return @"\\192.168.1.10\FileRunData\sharex\";
+                _Logger.LogCritical("Couldn't load path settings");
+                return;
             }
+
+            if (string.IsNullOrEmpty(_PathSettings.DockerFolder))
+            {
+                _Logger.LogCritical("Couldn't load DockerFolder settings");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_PathSettings.DesktopFolder))
+            {
+                _Logger.LogCritical("Couldn't load DesktopFolder settings");
+                return;
+            }
+
+            _Logger.LogInformation("File Service successfully initialized");
         }
 
         public async Task<(string? Message, HttpStatusCode StatusCode)> UploadAsync(HttpRequest request)
         {
             return await Task.Run(() =>
             {
-                try
-                {
-                    using Stream stream = new FileStream(DATAFOLDER + request.Form.Files[0].FileName, FileMode.Create);
-                    Console.WriteLine("File saved in: " + DATAFOLDER + request.Form.Files[0].FileName);
-                    request.Form.Files[0].CopyTo(stream);
+                string folderPath;
 
-                    return ("Upload successfull", HttpStatusCode.OK);
-                }
-                catch (Exception ex)
+                if (_PathSettings is null) return ("Upload fehlgeschlagen; No path settings found", HttpStatusCode.InternalServerError);
+                if (string.IsNullOrEmpty(_PathSettings.DockerFolder) || string.IsNullOrEmpty(_PathSettings.DesktopFolder)) return ("Upload fehlgeschlagen; One of the path settings not set", HttpStatusCode.InternalServerError);
+
+                if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
                 {
-                    return (ex.ToString(), HttpStatusCode.BadRequest);
-                }      
-            });            
+                    folderPath = _PathSettings.DockerFolder;
+                }
+                else
+                {
+                    folderPath = _PathSettings.DesktopFolder;
+                }
+
+                using Stream stream = new FileStream(folderPath + request.Form.Files[0].FileName, FileMode.Create);
+                request.Form.Files[0].CopyTo(stream);
+
+                return ("Upload successfull", HttpStatusCode.OK);
+
+            });
         }
     }
 }

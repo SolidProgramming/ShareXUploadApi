@@ -15,11 +15,17 @@
         public DBService(ILogger<DBService> logger)
         {
             _Logger = logger;
-            _DBSettings = SettingsHandler.ReadSettings<DBSettingsModel>(); //works   
 
-            if (_DBSettings is null) throw new ArgumentNullException("Database Settings could't be loaded");
+            _DBSettings = SettingsHandler.ReadSettings<DBSettingsModel>();
 
-            _Logger.LogInformation("hello from db servvice");
+            if (_DBSettings is null)
+            {
+                _Logger.LogCritical("Couldn't load database settings");
+                return;
+            }
+            
+
+            _Logger.LogInformation("DB Service successfully initialized");
         }
 
         public async Task DeleteFileDataAsync()
