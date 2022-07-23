@@ -1,10 +1,10 @@
 {
-    "dbSettings": {
-      "ip": "192.168.1.16",
-	  "table" : "sharexapi",
-      "username": "sharexapi",
-      "password": "425Ggp015XlTShc48JxE"
-    },
+  "dbSettings": {
+    "ip": "192.168.1.16",
+    "database": "sharexapi",
+    "username": "sharexapi",
+    "password": "425Ggp015XlTShc48JxE"
+  },
   "pathSettings": {
     "dockerFolder": "/sharex/",
     "desktopFolder": "//192.168.1.10/FileRunData/sharex/"

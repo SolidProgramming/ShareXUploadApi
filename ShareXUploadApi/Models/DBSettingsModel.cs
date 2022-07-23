@@ -7,8 +7,8 @@ namespace ShareXUploadApi.Models
         [JsonPropertyName("ip")]
         public string IP { get; set; }
 
-        [JsonPropertyName("table")]
-        public string Table { get; set; }
+        [JsonPropertyName("database")]
+        public string Database { get; set; }
 
         [JsonPropertyName("username")]
         public string Username { get; set; }
