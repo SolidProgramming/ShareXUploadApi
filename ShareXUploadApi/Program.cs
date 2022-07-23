@@ -1,7 +1,12 @@
 global using ShareXUploadApi.Services;
 global using System.Net;
+global using ShareXUploadApi.Classes;
+global using ShareXUploadApi.Models;
+global using ShareXUploadApi.Interfaces;
+global using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,11 +22,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ILinkService, LinkService>();
 builder.Services.AddSingleton<IFileService, FileService>();
-builder.Services.AddSingleton<IDBService, DBService>();
+builder.Services.AddTransient<IDBService, DBService>();
+builder.Services.AddLogging();
+
 
 var app = builder.Build();
 
-app.MapPost("sharex/upload", async (IFileService fileService, IDBService dbService, HttpRequest request) =>
+
+app.MapPost("sharex/upload",
+    async (IFileService fileService, IDBService dbService, ILogger<DBService> logger, HttpRequest request) =>
 {
     if (fileService is null) return Results.Problem("File Service not initialized");
     if (dbService is null) return Results.Problem("DB Service not initialized");
@@ -36,6 +45,7 @@ app.MapPost("sharex/upload", async (IFileService fileService, IDBService dbServi
         return Results.BadRequest("Too many files. Limit = 1");
     }
 
+    await dbService.InsertFileDataAsync();
     (string? Message, HttpStatusCode StatusCode) = await fileService.UploadAsync(request);
 
     if (StatusCode == HttpStatusCode.OK) return Results.Ok(Message);
@@ -43,7 +53,8 @@ app.MapPost("sharex/upload", async (IFileService fileService, IDBService dbServi
     return Results.Problem(Message);
 });
 
-app.MapGet("sharex/getsharelink", async (ILinkService linkService, [FromQuery] string guid) =>
+app.MapGet("sharex/getsharelink",
+    async (ILinkService linkService, [FromQuery] string guid) =>
 {
     if (linkService is null) return Results.BadRequest();
 

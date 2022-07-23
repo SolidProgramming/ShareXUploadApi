@@ -1,0 +1,13 @@
+{
+    "dbSettings": {
+      "ip": "192.168.1.16",
+	  "table" : "sharexapi",
+      "username": "sharexapi",
+      "password": "425Ggp015XlTShc48JxE"
+    },
+    "pathSettings" : {
+      "dockerFolder" : "",
+      "desktopFolder" : ""
+    
+  }
+}

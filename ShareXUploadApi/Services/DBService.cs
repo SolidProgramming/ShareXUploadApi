@@ -9,6 +9,19 @@
     }
     public class DBService : IDBService
     {
+        private readonly DBSettingsModel? _DBSettings;
+        private readonly ILogger<DBService> _Logger;
+
+        public DBService(ILogger<DBService> logger)
+        {
+            _Logger = logger;
+            _DBSettings = SettingsHandler.ReadSettings<DBSettingsModel>(); //works   
+
+            if (_DBSettings is null) throw new ArgumentNullException("Database Settings could't be loaded");
+
+            _Logger.LogInformation("hello from db servvice");
+        }
+
         public async Task DeleteFileDataAsync()
         {
             await Task.Delay(500);
