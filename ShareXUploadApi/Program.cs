@@ -19,9 +19,12 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
+if(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
+{
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
 
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ILinkService, LinkService>();
@@ -31,6 +34,7 @@ builder.Services.AddLogging();
 builder.Services.AddSingleton<MySqlConnection>();
 
 var app = builder.Build();
+
 
 
 
@@ -85,12 +89,14 @@ app.MapGet("sharex/getsharelink",
 });
 
 
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    //// Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 }
 
 app.UseHttpsRedirection();
