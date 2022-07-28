@@ -5,3 +5,4 @@ ASP.NET Core API Backend for ShareX(with Docker support)
 
 
 ![ShareXApiLogScreenshot](https://lucaweidmann.de/cdn/sharexapilog.png)
+![ShareXApiSwagger](https://lucaweidmann.de/cdn/sharexapiswagger.png)
