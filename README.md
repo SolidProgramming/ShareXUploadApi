@@ -18,31 +18,22 @@ CREATE TABLE IF NOT EXISTS `uploads` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 ```
 
-3. Connection String in appsettings.json. Should look link this([appsettings.json](https://dl.lucaweidmann.de/wl/?id=yTvXiGnH1Zck94ZiW3DRnt9tB5vwSpCv)):
-```
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "AllowedHosts": "*",
-  "ConnectionStrings": {
-    "DefaultConnection": "server=XXXX;port=XXXX;database=XXXX;user=XXXX;password=XXXX;"
-  }
-}
-```
-3. settings.json. Located in folder 'ShareXUploadApi\ShareXUploadApi'([settings.json](https://dl.lucaweidmann.de/wl/?id=6SMZHXBRQzDx2S5ZZpGeMJS8F4Dw3uFP)).
+2. Settings file(settings.json).
 ```
 {
   "pathSettings": {
     "dockerFolder": "/sharex/",
-    "desktopFolder": "//127.0.0.1/mysharedfolder"
-
+    "desktopFolder": "//myshare/somefolder/"
+  },
+  "dbSettings": {
+    "ip": "ipaddressofdb",
+    "database": "dbname",
+    "username": "username",
+    "password": "password"
   }
 }
 ```
+
 ### :exclamation::exclamation:The "dockerFolder" setting needs to be the same as the unraid container path variable:exclamation::exclamation:
 
 
@@ -60,6 +51,12 @@ CREATE TABLE IF NOT EXISTS `uploads` (
    - Name => Host Path
    - Container Path => /sharex
    - Host Path => /mnt/user/... (use your own share/folder)
+   - Access Mode => Read/Write
+7. Click on 'Add another Path...' again
+   - Config Type => Path
+   - Name => Appdata
+   - Container Path => /app/appdata
+   - Host Path => /mnt/user/appdata/sharexuploadapi/
    - Access Mode => Read/Write
 7. Cick on 'Apply' button.
 
