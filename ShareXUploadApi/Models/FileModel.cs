@@ -4,5 +4,6 @@
     {
         public string Guid { get; set; } = default!; 
         public string Filename { get; set; } = default!;
+        public IFormFile File { get; set; } = default!;
     }
 }

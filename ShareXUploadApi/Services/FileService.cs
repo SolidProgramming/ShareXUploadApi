@@ -2,7 +2,7 @@
 {
     public interface IFileService
     {
-        Task<(string? Message, HttpStatusCode StatusCode)> UploadAsync(HttpRequest request);
+        Task<(string? Message, HttpStatusCode StatusCode)> UploadAsync(FileModel file);
     }
     public class FileService : IFileService
     {
@@ -36,7 +36,7 @@
             _Logger.LogInformation($"{DateTime.Now}|File Service successfully initialized");
         }
 
-        public async Task<(string? Message, HttpStatusCode StatusCode)> UploadAsync(HttpRequest request)
+        public async Task<(string? Message, HttpStatusCode StatusCode)> UploadAsync(FileModel file)
         {
             return await Task.Run(() =>
             {
@@ -54,8 +54,8 @@
                     folderPath = _PathSettings.DesktopFolder;
                 }
 
-                using Stream stream = new FileStream(folderPath + request.Form.Files[0].FileName, FileMode.Create);
-                request.Form.Files[0].CopyTo(stream);
+                using Stream stream = new FileStream(folderPath + file.Guid, FileMode.Create);
+                file.File.CopyTo(stream);
 
                 return ("Upload successfull", HttpStatusCode.OK);
 

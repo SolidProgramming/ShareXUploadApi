@@ -87,7 +87,7 @@ namespace ShareXUploadApi.Services
             }
             catch (Exception ex)
             {
-                _Logger.LogCritical($"{DateTime.Now}|File: {file.Guid} |=| {file.Filename} could not be registered in database. Error: " + ex.ToString());
+                _Logger.LogCritical($"{DateTime.Now}|File: {file.Guid} |=| {file.Filename} could not be registered in database. Error: " + ex.ToString());               
             }
         }
 

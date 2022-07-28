@@ -50,12 +50,13 @@ app.MapPost("sharex/upload",
     FileModel file = new()
     {
         Guid = Guid.NewGuid().ToString(),
-        Filename = request.Form.Files[0].FileName
+        Filename = request.Form.Files[0].FileName,
+        File = request.Form.Files[0]
     };
 
     await dbService.InsertFileDataAsync(file);
 
-    (string? Message, HttpStatusCode StatusCode) = await fileService.UploadAsync(request);
+    (string? Message, HttpStatusCode StatusCode) = await fileService.UploadAsync(file);
 
     if (StatusCode == HttpStatusCode.OK) return Results.Ok(Message);
 
