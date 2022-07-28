@@ -8,7 +8,7 @@ namespace ShareXUploadApi.Services
     {
         Task InsertFileDataAsync(FileModel file);
         Task UpdateFileDataAsync();
-        Task DeleteFileDataAsync();
+        Task DeleteFileDataAsync(string guid);
         Task<FileModel?> GetFileDataAsync(string guid);
 
     }
@@ -48,9 +48,25 @@ namespace ShareXUploadApi.Services
             TestDBConnection();
         }
 
-        public async Task DeleteFileDataAsync()
+        public async Task DeleteFileDataAsync(string guid)
         {
-            await Task.Delay(500);
+            await EnsureConnectivity();
+
+            string query = "DELETE FROM uploads WHERE guid = ?guid;";
+
+            MySqlCommand mySqlCommand = new(query, _MysqlConn);
+
+            mySqlCommand.Parameters.AddWithValue("?guid", guid);
+
+            try
+            {
+                int numberOfRowsAffected = await mySqlCommand.ExecuteNonQueryAsync();
+                _Logger.LogInformation($"{DateTime.Now}|Deleted entry with guid: {guid} from database. Rows affected: {numberOfRowsAffected}");
+            }
+            catch (Exception ex)
+            {
+                _Logger.LogCritical($"{DateTime.Now}|Could not delete database entry with guid: {guid}. Error: " + ex.ToString());
+            }
         }
 
         public async Task InsertFileDataAsync(FileModel file)
