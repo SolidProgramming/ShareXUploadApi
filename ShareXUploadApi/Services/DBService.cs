@@ -14,35 +14,45 @@ namespace ShareXUploadApi.Services
     }
     public class DBService : IDBService
     {
-        private readonly DBSettingsModel? _DBSettings;
+        private static DBSettingsModel? _DBSettings;
         private readonly ILogger<DBService> _Logger;
         private readonly MySqlConnection _MysqlConn = default!;
+
 
         public DBService(ILogger<DBService> logger, IConfiguration config, MySqlConnection mysqlConn)
         {
             _Logger = logger;
 
-            _Logger.LogInformation($"{DateTime.Now}|DB Service successfully initialized");
+            _DBSettings = SettingsHandler.ReadSettings<DBSettingsModel>();
 
-            string dbConn = config.GetValue<string>("ConnectionStrings:DefaultConnection");
-
-            if (string.IsNullOrEmpty(dbConn))
+            if (_DBSettings is null)
             {
-                logger.LogCritical($"{DateTime.Now}|No connection string found in appsettings.json => ConnectionStrings:DefaultConnection");
+                logger.LogCritical($"{DateTime.Now}|No Database settings found in settings.json");
                 return;
             }
 
-            mysqlConn.ConnectionString = dbConn;
+            if (string.IsNullOrEmpty(_DBSettings.IP) ||
+                string.IsNullOrEmpty(_DBSettings.Database) ||
+                string.IsNullOrEmpty(_DBSettings.Username) ||
+                string.IsNullOrEmpty(_DBSettings.Password))
+            {
+                logger.LogCritical($"{DateTime.Now}|One or more of the database settings is empty");
+                return;
+            }
+
+            mysqlConn.ConnectionString = $"server={_DBSettings.IP};port=3306;database={_DBSettings.Database};user={_DBSettings.Username};password={_DBSettings.Password};";
 
             _MysqlConn = mysqlConn;
 
             if (TestDBConnection())
             {
-                Task.Run(async() =>
+                Task.Run(async () =>
                 {
                     await PrepareTablesIfNeeded();
                 });
             }
+
+            _Logger.LogInformation($"{DateTime.Now}|DB Service successfully initialized");
         }
 
         public async Task DeleteFileDataAsync(string guid)

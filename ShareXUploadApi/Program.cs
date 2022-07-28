@@ -7,8 +7,6 @@ global using Microsoft.EntityFrameworkCore.Design;
 global using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Http.Connections;
 using MySql.Data.MySqlClient;
 using System.Text.Json;
 
@@ -20,11 +18,11 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
-if(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
-{
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
-}
+//if(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
+//{
+//    builder.Services.AddEndpointsApiExplorer();
+//    builder.Services.AddSwaggerGen();
+//}
 
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ILinkService, LinkService>();
@@ -34,9 +32,6 @@ builder.Services.AddLogging();
 builder.Services.AddSingleton<MySqlConnection>();
 
 var app = builder.Build();
-
-
-
 
 app.MapPost("sharex/upload",
     async (IFileService fileService, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, IConfiguration config, MySqlConnection mysqlConn, HttpRequest request) =>
@@ -89,15 +84,15 @@ app.MapGet("sharex/getsharelink",
 });
 
 
-if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
-{
-    //// Configure the HTTP request pipeline.
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
-}
+//if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
+//{
+//    //// Configure the HTTP request pipeline.
+//    if (app.Environment.IsDevelopment())
+//    {
+//        app.UseSwagger();
+//        app.UseSwaggerUI();
+//    }
+//}
 
 app.UseHttpsRedirection();
 

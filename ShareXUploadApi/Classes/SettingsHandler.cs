@@ -11,7 +11,23 @@ namespace ShareXUploadApi.Classes
     {
         public static T? ReadSettings<T>()
         {
-            using StreamReader r = new("settings.json");
+            string path = "";
+
+            if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
+            {
+                path = @"/app/appdata/settings.json";
+
+                if (!Directory.Exists(Path.GetDirectoryName(path)))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+                };
+            }
+            else
+            {
+                path = "settings.json";
+            }
+
+            using StreamReader r = new(path);
             string json = r.ReadToEnd();
 
             SettingsModel? settings = JsonSerializer.Deserialize<SettingsModel>(json);
