@@ -41,20 +41,24 @@ app.MapPost("sharex/upload",
     {
         return Results.BadRequest("No file uploaded");
     }
-    
+
     if (request.Form.Files.Count > 1)
     {
         return Results.BadRequest("Too many files. Limit = 1");
     }
 
+    FileModel file = new()
+    {
+        Guid = Guid.NewGuid().ToString(),
+        Filename = request.Form.Files[0].FileName
+    };
 
-    await dbService.GetFileDataAsync("");
-    await dbService.InsertFileDataAsync(new());
+    await dbService.InsertFileDataAsync(file);
 
     (string? Message, HttpStatusCode StatusCode) = await fileService.UploadAsync(request);
 
     if (StatusCode == HttpStatusCode.OK) return Results.Ok(Message);
-   
+
     return Results.Problem(Message);
 });
 

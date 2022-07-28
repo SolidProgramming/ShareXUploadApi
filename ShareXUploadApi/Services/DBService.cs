@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using System;
 using System.Data;
 
 namespace ShareXUploadApi.Services
@@ -8,14 +9,14 @@ namespace ShareXUploadApi.Services
         Task InsertFileDataAsync(FileModel file);
         Task UpdateFileDataAsync();
         Task DeleteFileDataAsync();
-        Task GetFileDataAsync(string guid);
+        Task<FileModel?> GetFileDataAsync(string guid);
 
     }
     public class DBService : IDBService
     {
         private readonly DBSettingsModel? _DBSettings;
         private readonly ILogger<DBService> _Logger;
-        private readonly MySqlConnection _MysqlConn = default!;
+        private readonly MySqlConnection _MysqlConn = default!;        
 
         public DBService(ILogger<DBService> logger, IConfiguration config, MySqlConnection mysqlConn)
         {
@@ -54,18 +55,18 @@ namespace ShareXUploadApi.Services
 
         public async Task InsertFileDataAsync(FileModel file)
         {
-            string query = "INSERT INTO uploads (guid, filename, filepath) VALUES (?guid, ?filename, ?filepath);";
+            await EnsureConnectivity();
 
-            file.Guid = "test123";
-            file.Filename = "filename";
-            file.FilePath = "/asdatest/asdatest";
+            string query = "INSERT INTO uploads (guid, filename) VALUES (?guid, ?filename);";
 
-            Dictionary<string, dynamic> @params = new()
-            {
-                { "?guid", file.Guid },
-                { "?filename", file.Filename },
-                { "?filepath", file.FilePath }
-            };
+            MySqlCommand mySqlCommand = new(query, _MysqlConn);
+
+            MySqlDataAdapter adapter = new(mySqlCommand);
+
+            mySqlCommand.Parameters.AddWithValue("?guid", file.Guid);
+            mySqlCommand.Parameters.AddWithValue("?filename", file.Filename);
+
+            await mySqlCommand.ExecuteNonQueryAsync();
 
         }
 
@@ -74,11 +75,31 @@ namespace ShareXUploadApi.Services
             await Task.Delay(500);
         }
 
-        public async Task GetFileDataAsync(string guid)
+        public async Task<FileModel?> GetFileDataAsync(string guid)
         {
-            string query = "SELECT * FROM uploads;";
+            await EnsureConnectivity();
 
+            string query = "SELECT * FROM uploads WHERE guid = ?guid;";            
 
+            MySqlCommand mySqlCommand = new(query, _MysqlConn);
+
+            MySqlDataAdapter adapter = new(mySqlCommand);
+
+            mySqlCommand.Parameters.AddWithValue("?guid", guid);
+
+            DataSet ds = new();
+
+            await adapter.FillAsync(ds);
+
+            if (!HasData(ds)) return null;
+
+            FileModel file = new()
+            {
+                Guid = guid,
+                Filename = ds.Tables[0].Rows[0]["filename"].ToString()
+            };
+
+            return file;
         }
 
         private void TestDBConnection()
@@ -96,6 +117,32 @@ namespace ShareXUploadApi.Services
                 _Logger.LogCritical("DB connection could not be established. Error: " + ex.ToString());
             }
 
+        }
+
+        private async Task EnsureConnectivity()
+        {
+            if(_MysqlConn.State != ConnectionState.Open)
+            {
+                await _MysqlConn.OpenAsync();
+            }
+        }
+
+        private bool HasData(DataSet ds)
+        {
+            if(ds.Tables.Count > 0)
+            {
+                for (int i = 0; i < ds.Tables.Count; i++)
+                {
+                    if (ds.Tables[i].Rows.Count == 0)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
     }

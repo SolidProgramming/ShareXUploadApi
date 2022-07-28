@@ -2,8 +2,7 @@
 {
     public class FileModel
     {
-        public string Guid { get; set; } 
-        public string FilePath { get; set; } 
-        public string Filename { get; set; }
+        public string Guid { get; set; } = default!; 
+        public string Filename { get; set; } = default!;
     }
 }
