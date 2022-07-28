@@ -11,7 +11,7 @@ namespace ShareXUploadApi.Classes
     {
         public static T? ReadSettings<T>()
         {
-            using StreamReader r = new("Settings.json");
+            using StreamReader r = new("settings.json");
             string json = r.ReadToEnd();
 
             SettingsModel? settings = JsonSerializer.Deserialize<SettingsModel>(json);

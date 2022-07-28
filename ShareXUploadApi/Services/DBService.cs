@@ -22,24 +22,15 @@ namespace ShareXUploadApi.Services
         {
             _Logger = logger;
 
-            _DBSettings = SettingsHandler.ReadSettings<DBSettingsModel>();
-
-            if (_DBSettings is null)
-            {
-                _Logger.LogCritical($"{DateTime.Now}|Couldn't load database settings");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(_DBSettings.IP) || string.IsNullOrEmpty(_DBSettings.Database) ||
-                string.IsNullOrEmpty(_DBSettings.Username) || string.IsNullOrEmpty(_DBSettings.Password))
-            {
-                _Logger.LogCritical("Atleast one of the database settings coulnd't load");
-                return;
-            }
-
             _Logger.LogInformation($"{DateTime.Now}|DB Service successfully initialized");
 
             string dbConn = config.GetValue<string>("ConnectionStrings:DefaultConnection");
+
+            if(string.IsNullOrEmpty(dbConn))
+            {
+                logger.LogCritical($"{DateTime.Now}|No connection string found in appsettings.json => ConnectionStrings:DefaultConnection");
+                return;
+            }
 
             mysqlConn.ConnectionString = dbConn;
 
