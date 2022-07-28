@@ -64,8 +64,15 @@ namespace ShareXUploadApi.Services
             mySqlCommand.Parameters.AddWithValue("?guid", file.Guid);
             mySqlCommand.Parameters.AddWithValue("?filename", file.Filename);
 
-            await mySqlCommand.ExecuteNonQueryAsync();
-
+            try
+            {
+                await mySqlCommand.ExecuteNonQueryAsync();
+                _Logger.LogInformation($"{DateTime.Now}|File: {file.Guid} |=| {file.Filename} registered in database");
+            }
+            catch (Exception ex)
+            {
+                _Logger.LogCritical($"{DateTime.Now}|File: {file.Guid} |=| {file.Filename} could not be registered in database. Error: " + ex.ToString());
+            }
         }
 
         public async Task UpdateFileDataAsync()
