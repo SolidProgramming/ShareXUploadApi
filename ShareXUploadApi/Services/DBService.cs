@@ -26,7 +26,7 @@ namespace ShareXUploadApi.Services
 
             if (_DBSettings is null)
             {
-                _Logger.LogCritical("Couldn't load database settings");
+                _Logger.LogCritical($"{DateTime.Now}|Couldn't load database settings");
                 return;
             }
 
@@ -37,7 +37,7 @@ namespace ShareXUploadApi.Services
                 return;
             }
 
-            _Logger.LogInformation("DB Service successfully initialized");
+            _Logger.LogInformation($"{DateTime.Now}|DB Service successfully initialized");
 
             string dbConn = config.GetValue<string>("ConnectionStrings:DefaultConnection");
 
@@ -60,8 +60,6 @@ namespace ShareXUploadApi.Services
             string query = "INSERT INTO uploads (guid, filename) VALUES (?guid, ?filename);";
 
             MySqlCommand mySqlCommand = new(query, _MysqlConn);
-
-            MySqlDataAdapter adapter = new(mySqlCommand);
 
             mySqlCommand.Parameters.AddWithValue("?guid", file.Guid);
             mySqlCommand.Parameters.AddWithValue("?filename", file.Filename);
@@ -91,13 +89,19 @@ namespace ShareXUploadApi.Services
 
             await adapter.FillAsync(ds);
 
-            if (!HasData(ds)) return null;
+            if (!HasData(ds))
+            {
+                _Logger.LogCritical($"{DateTime.Now}|No DB entry with guid {guid} found!");
+                return null;
+            }
 
             FileModel file = new()
             {
                 Guid = guid,
                 Filename = ds.Tables[0].Rows[0]["filename"].ToString()
             };
+
+            _Logger.LogInformation($"{DateTime.Now}|File: {guid} | {file.Filename} received");
 
             return file;
         }
@@ -121,9 +125,12 @@ namespace ShareXUploadApi.Services
 
         private async Task EnsureConnectivity()
         {
-            if(_MysqlConn.State != ConnectionState.Open)
+            _Logger.LogInformation($"{DateTime.Now}|DB connection state: " + _MysqlConn.State.ToString());
+
+            if (_MysqlConn.State != ConnectionState.Open)
             {
                 await _MysqlConn.OpenAsync();
+                _Logger.LogInformation($"{DateTime.Now}|Mysql connection opened");
             }
         }
 

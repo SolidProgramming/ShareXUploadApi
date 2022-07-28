@@ -17,23 +17,23 @@
 
             if (_PathSettings is null)
             {
-                _Logger.LogCritical("Couldn't load path settings");
+                _Logger.LogCritical($"{DateTime.Now}|Couldn't load path settings");
                 return;
             }
 
             if (string.IsNullOrEmpty(_PathSettings.DockerFolder))
             {
-                _Logger.LogCritical("Couldn't load DockerFolder settings");
+                _Logger.LogCritical($"{DateTime.Now}|Couldn't load DockerFolder settings");
                 return;
             }
 
             if (string.IsNullOrEmpty(_PathSettings.DesktopFolder))
             {
-                _Logger.LogCritical("Couldn't load DesktopFolder settings");
+                _Logger.LogCritical($"{DateTime.Now}|Couldn't load DesktopFolder settings");
                 return;
             }
 
-            _Logger.LogInformation("File Service successfully initialized");
+            _Logger.LogInformation($"{DateTime.Now}|File Service successfully initialized");
         }
 
         public async Task<(string? Message, HttpStatusCode StatusCode)> UploadAsync(HttpRequest request)
