@@ -108,7 +108,7 @@ namespace ShareXUploadApi.Services
                 Filename = ds.Tables[0].Rows[0]["filename"].ToString()
             };
 
-            _Logger.LogInformation($"{DateTime.Now}|File: {guid} | {file.Filename} received");
+            _Logger.LogInformation($"{DateTime.Now}|File: {guid} | {file.Filename} read from database");
 
             return file;
         }
