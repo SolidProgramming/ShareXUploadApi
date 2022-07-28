@@ -3,9 +3,9 @@
     public class PathSettingsModel
     {
         [JsonPropertyName("dockerFolder")]
-        public string DockerFolder { get; set; }
+        public string DockerFolder { get; set; } = default!;
 
         [JsonPropertyName("desktopFolder")]
-        public string DesktopFolder { get; set; }
+        public string DesktopFolder { get; set; } = default!;
     }
 }

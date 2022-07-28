@@ -2,11 +2,14 @@ global using ShareXUploadApi.Services;
 global using System.Net;
 global using ShareXUploadApi.Classes;
 global using ShareXUploadApi.Models;
+global using Microsoft.EntityFrameworkCore.Design;
 //global using ShareXUploadApi.Interfaces;
 global using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http.Connections;
+using MySql.Data.MySqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,18 +22,20 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
 
+
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ILinkService, LinkService>();
 builder.Services.AddSingleton<IFileService, FileService>();
 builder.Services.AddSingleton<IDBService, DBService>();
 builder.Services.AddLogging();
-
+builder.Services.AddSingleton<MySqlConnection>();
 
 var app = builder.Build();
 
 
+
 app.MapPost("sharex/upload",
-    async (IFileService fileService, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, HttpRequest request) =>
+    async (IFileService fileService, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, IConfiguration config, MySqlConnection mysqlConn, HttpRequest request) =>
 {
     if (!request.Form.Files.Any())
     {
@@ -42,9 +47,12 @@ app.MapPost("sharex/upload",
         return Results.BadRequest("Too many files. Limit = 1");
     }
 
-    await dbService.InsertFileDataAsync();
+
+    await dbService.GetFileDataAsync("");
+    await dbService.InsertFileDataAsync(new());
+
     (string? Message, HttpStatusCode StatusCode) = await fileService.UploadAsync(request);
-    
+
     if (StatusCode == HttpStatusCode.OK) return Results.Ok(Message);
    
     return Results.Problem(Message);

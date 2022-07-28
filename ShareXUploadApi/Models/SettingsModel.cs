@@ -3,10 +3,10 @@
     public class SettingsModel
     {
         [JsonPropertyName("dbSettings")]    
-        public DBSettingsModel DBSettings { get; set; }
+        public DBSettingsModel DBSettings { get; set; } = default!;
 
 
         [JsonPropertyName("pathSettings")]
-        public PathSettingsModel PathSettings { get; set; }
+        public PathSettingsModel PathSettings { get; set; } = default!;
     }
 }
