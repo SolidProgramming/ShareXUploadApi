@@ -55,11 +55,16 @@
                     folderPath = _PathSettings.DesktopFolder;
                 }
 
-                using Stream stream = new FileStream(folderPath + file.Guid + fileExtension, FileMode.Create);
-                file.File.CopyTo(stream);
-
-                return ("Upload successfull", HttpStatusCode.OK);
-
+                try
+                {
+                    using Stream stream = new FileStream(folderPath + file.Guid + fileExtension, FileMode.Create);
+                    file.File.CopyTo(stream);
+                    return ("", HttpStatusCode.OK);
+                }
+                catch (Exception ex)
+                {
+                    return (ex.ToString(), HttpStatusCode.InternalServerError);
+                }
             });
         }
     }

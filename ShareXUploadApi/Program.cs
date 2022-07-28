@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http.Connections;
 using MySql.Data.MySqlClient;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,9 +59,16 @@ app.MapPost("sharex/upload",
 
     (string? Message, HttpStatusCode StatusCode) = await fileService.UploadAsync(file);
 
-    if (StatusCode == HttpStatusCode.OK) return Results.Ok(Message);
+    FileUploadResponseModel apiResponse = new()
+    {
+        ErrorMessage = Message,
+        Guid = file.Guid,
+        Success = StatusCode == HttpStatusCode.OK
+    };
 
-    return Results.Problem(Message);
+    if (StatusCode == HttpStatusCode.OK) return Results.Ok(JsonSerializer.Serialize(apiResponse));
+
+    return Results.Problem(JsonSerializer.Serialize(apiResponse));
 });
 
 app.MapGet("sharex/getsharelink",
