@@ -10,7 +10,16 @@ ASP.NET Core API Backend for ShareX(with Docker support)
 ## Getting started
 ### Prerequisites
 1. MySQL Database
-2. Connection String in appsettings.json. Should look link this([appsettings.json](https://dl.lucaweidmann.de/wl/?id=yTvXiGnH1Zck94ZiW3DRnt9tB5vwSpCv)):
+#### The table needed for uploads is created on the first request if the table doesn't exist.
+```
+CREATE TABLE IF NOT EXISTS `uploads` (
+  `guid` varchar(50) COLLATE utf8mb4_bin NOT NULL,
+  `filename` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  PRIMARY KEY (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+```
+
+3. Connection String in appsettings.json. Should look link this([appsettings.json](https://dl.lucaweidmann.de/wl/?id=yTvXiGnH1Zck94ZiW3DRnt9tB5vwSpCv)):
 ```
 {
   "Logging": {
@@ -36,16 +45,6 @@ ASP.NET Core API Backend for ShareX(with Docker support)
 }
 ```
 ### :exclamation::exclamation:The "dockerFolder" setting needs to be the same as the unraid container path variable:exclamation::exclamation:
-
-
-### The table needed for uploads is created on the first request if the table doesn't exist.
-```
-CREATE TABLE IF NOT EXISTS `uploads` (
-  `guid` varchar(50) COLLATE utf8mb4_bin NOT NULL,
-  `filename` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  PRIMARY KEY (`guid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-```
 
 
 ### Unraid Docker
