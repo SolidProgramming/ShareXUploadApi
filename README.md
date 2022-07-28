@@ -42,16 +42,17 @@ ASP.NET Core API Backend for ShareX(with Docker support)
 1. Login to your UnRaid dashboard. 
 2. Go to tab 'Docker'.
 3. Click on 'Add Container' button.
-4. Fill fields
+4. Fill fields.
    - Repository => solidprogramming/sharexuploadapi
    - Docker Hub Url => https://hub.docker.com/r/solidprogramming/sharexuploadapi
    - (optional) Icon URL => https://getsharex.com/favicon.ico
 5. Click on 'Add another Path...'
-6. Fill fields
+6. Fill fields.
    - Config Type => Path
    - Name => Host Path
    - Container Path => /sharex
    - Host Path => /mnt/user/... (use your own share/folder)
    - Access Mode => Read/Write
+7. Cick on 'Apply' button.
 
    
