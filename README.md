@@ -19,6 +19,17 @@ CREATE TABLE IF NOT EXISTS `uploads` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 ```
+#### The table needed for authetication users is created on the first request if the table doesn't exist(the default is admin:admin).
+```
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) COLLATE utf8mb4_bin NOT NULL,
+  `password` varchar(50) COLLATE utf8mb4_bin NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+INSERT INTO `users` (`id`, `username`, `password`) VALUES
+	(1, 'admin', 'admin');
+```
 
 ## 2. Settings file [settings.json](https://dl.lucaweidmann.de/wl/?id=6SMZHXBRQzDx2S5ZZpGeMJS8F4Dw3uFP). Copy this file to the unraid appdata folder '/mnt/user/appdata/sharexuploadapi/'
 ```
