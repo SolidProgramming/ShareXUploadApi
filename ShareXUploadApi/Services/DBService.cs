@@ -196,7 +196,21 @@ namespace ShareXUploadApi.Services
 
             MySqlCommand mySqlCommand = new(query, _MysqlConn);
 
-            mySqlCommand.ExecuteNonQuery();
+            await mySqlCommand.ExecuteNonQueryAsync();
+
+            query = @"CREATE TABLE IF NOT EXISTS `users` (
+                     `id` int NOT NULL AUTO_INCREMENT,
+                     `username` varchar(50) COLLATE utf8mb4_bin NOT NULL,
+                     `password` varchar(50) COLLATE utf8mb4_bin NOT NULL,
+                     PRIMARY KEY(`id`) USING BTREE
+                   ) ENGINE = InnoDB AUTO_INCREMENT = 2 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin; ";
+            mySqlCommand.CommandText = query;
+            await mySqlCommand.ExecuteNonQueryAsync();
+
+            query = @"INSERT INTO `users` (`id`, `username`, `password`) VALUES (1, 'admin', 'admin');";
+            mySqlCommand.CommandText = query;
+            await mySqlCommand.ExecuteNonQueryAsync();
+
         }
 
         private async Task EnsureConnectivity()
@@ -226,6 +240,6 @@ namespace ShareXUploadApi.Services
             }
 
             return false;
-        }        
+        }
     }
 }
