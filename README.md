@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `uploads` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 ```
 
-## 2. Settings file [settings.json](https://dl.lucaweidmann.de/wl/?id=6SMZHXBRQzDx2S5ZZpGeMJS8F4Dw3uFP) . Copy this file to the unraid appdata folder '/mnt/user/appdata/sharexuploadapi/'
+## 2. Settings file [settings.json](https://dl.lucaweidmann.de/wl/?id=6SMZHXBRQzDx2S5ZZpGeMJS8F4Dw3uFP). Copy this file to the unraid appdata folder '/mnt/user/appdata/sharexuploadapi/'
 ```
 {
   "pathSettings": {
