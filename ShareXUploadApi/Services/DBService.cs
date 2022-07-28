@@ -16,7 +16,7 @@ namespace ShareXUploadApi.Services
     {
         private readonly DBSettingsModel? _DBSettings;
         private readonly ILogger<DBService> _Logger;
-        private readonly MySqlConnection _MysqlConn = default!;        
+        private readonly MySqlConnection _MysqlConn = default!;
 
         public DBService(ILogger<DBService> logger, IConfiguration config, MySqlConnection mysqlConn)
         {
@@ -26,7 +26,7 @@ namespace ShareXUploadApi.Services
 
             string dbConn = config.GetValue<string>("ConnectionStrings:DefaultConnection");
 
-            if(string.IsNullOrEmpty(dbConn))
+            if (string.IsNullOrEmpty(dbConn))
             {
                 logger.LogCritical($"{DateTime.Now}|No connection string found in appsettings.json => ConnectionStrings:DefaultConnection");
                 return;
@@ -36,7 +36,13 @@ namespace ShareXUploadApi.Services
 
             _MysqlConn = mysqlConn;
 
-            TestDBConnection();
+            if (TestDBConnection())
+            {
+                Task.Run(async() =>
+                {
+                    await PrepareTablesIfNeeded();
+                });
+            }
         }
 
         public async Task DeleteFileDataAsync(string guid)
@@ -78,7 +84,7 @@ namespace ShareXUploadApi.Services
             }
             catch (Exception ex)
             {
-                _Logger.LogCritical($"{DateTime.Now}|File: {file.Guid} |=| {file.Filename} could not be registered in database. Error: " + ex.ToString());               
+                _Logger.LogCritical($"{DateTime.Now}|File: {file.Guid} |=| {file.Filename} could not be registered in database. Error: " + ex.ToString());
             }
         }
 
@@ -91,7 +97,7 @@ namespace ShareXUploadApi.Services
         {
             await EnsureConnectivity();
 
-            string query = "SELECT * FROM uploads WHERE guid = ?guid;";            
+            string query = "SELECT * FROM uploads WHERE guid = ?guid;";
 
             MySqlCommand mySqlCommand = new(query, _MysqlConn);
 
@@ -120,7 +126,7 @@ namespace ShareXUploadApi.Services
             return file;
         }
 
-        private void TestDBConnection()
+        private bool TestDBConnection()
         {
             try
             {
@@ -129,12 +135,30 @@ namespace ShareXUploadApi.Services
                 _Logger.LogInformation("Database reachablility ensured");
 
                 _MysqlConn.Close();
+
+                return true;
             }
             catch (Exception ex)
             {
                 _Logger.LogCritical("DB connection could not be established. Error: " + ex.ToString());
+                return false;
             }
 
+        }
+
+        private async Task PrepareTablesIfNeeded()
+        {
+            await EnsureConnectivity();
+
+            string query = @"CREATE TABLE IF NOT EXISTS `uploads` (
+                           `guid` varchar(50) COLLATE utf8mb4_bin NOT NULL,
+                           `filename` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+                           PRIMARY KEY(`guid`)
+                         ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin; ";
+
+            MySqlCommand mySqlCommand = new(query, _MysqlConn);
+
+            mySqlCommand.ExecuteNonQuery();
         }
 
         private async Task EnsureConnectivity()
@@ -150,7 +174,7 @@ namespace ShareXUploadApi.Services
 
         private bool HasData(DataSet ds)
         {
-            if(ds.Tables.Count > 0)
+            if (ds.Tables.Count > 0)
             {
                 for (int i = 0; i < ds.Tables.Count; i++)
                 {
