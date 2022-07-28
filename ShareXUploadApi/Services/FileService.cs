@@ -40,6 +40,7 @@
         {
             return await Task.Run(() =>
             {
+                string fileExtension = Path.GetExtension(file.Filename);
                 string folderPath;
 
                 if (_PathSettings is null) return ("Upload fehlgeschlagen; No path settings found", HttpStatusCode.InternalServerError);
@@ -54,7 +55,7 @@
                     folderPath = _PathSettings.DesktopFolder;
                 }
 
-                using Stream stream = new FileStream(folderPath + file.Guid, FileMode.Create);
+                using Stream stream = new FileStream(folderPath + file.Guid + fileExtension, FileMode.Create);
                 file.File.CopyTo(stream);
 
                 return ("Upload successfull", HttpStatusCode.OK);
