@@ -10,6 +10,7 @@ namespace ShareXUploadApi.Services
         Task UpdateFileDataAsync();
         Task DeleteFileDataAsync(string guid);
         Task<FileModel?> GetFileDataAsync(string guid);
+        Task<bool> IsUserAuthenticated(UsersModel user);
 
     }
     public class DBService : IDBService
@@ -19,7 +20,7 @@ namespace ShareXUploadApi.Services
         private readonly MySqlConnection _MysqlConn = default!;
 
 
-        public DBService(ILogger<DBService> logger, IConfiguration config, MySqlConnection mysqlConn)
+        public DBService(ILogger<DBService> logger, MySqlConnection mysqlConn)
         {
             _Logger = logger;
 
@@ -136,6 +137,33 @@ namespace ShareXUploadApi.Services
             return file;
         }
 
+        public async Task<bool> IsUserAuthenticated(UsersModel user)
+        {
+            await EnsureConnectivity();
+
+            string query = "SELECT id FROM users WHERE username = ?username AND password = ?password;";
+
+            MySqlCommand mySqlCommand = new(query, _MysqlConn);
+
+            MySqlDataAdapter adapter = new(mySqlCommand);
+
+            mySqlCommand.Parameters.AddWithValue("?username", user.Username);
+            mySqlCommand.Parameters.AddWithValue("?password", user.Password);
+
+            DataSet ds = new();
+
+            await adapter.FillAsync(ds);
+
+            if (!HasData(ds))
+            {
+                _Logger.LogCritical($"{DateTime.Now}|Can't find user with corresponding password found: {user.Username}");
+                return false;
+            }
+
+            _Logger.LogInformation($"{DateTime.Now}|User found with name and matching password: {user.Username}");
+            return true;
+        }
+
         private bool TestDBConnection()
         {
             try
@@ -198,7 +226,6 @@ namespace ShareXUploadApi.Services
             }
 
             return false;
-        }
-
+        }        
     }
 }

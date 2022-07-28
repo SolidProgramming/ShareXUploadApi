@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,10 @@ builder.Services.AddControllers();
 //    builder.Services.AddSwaggerGen();
 //}
 
+builder.Services.AddAuthentication("BasicAuthentication")
+   .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
+                ("BasicAuthentication", null);
+builder.Services.AddAuthorization();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ILinkService, LinkService>();
 builder.Services.AddSingleton<IFileService, FileService>();
@@ -33,8 +39,8 @@ builder.Services.AddSingleton<MySqlConnection>();
 
 var app = builder.Build();
 
-app.MapPost("sharex/upload",
-    async (IFileService fileService, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, IConfiguration config, MySqlConnection mysqlConn, HttpRequest request) =>
+app.MapPost("sharex/upload", [Authorize]
+async (IFileService fileService, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, IConfiguration config, MySqlConnection mysqlConn, HttpRequest request) =>
 {
     if (!request.Form.Files.Any())
     {
@@ -96,6 +102,7 @@ app.MapGet("sharex/getsharelink",
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
