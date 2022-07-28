@@ -8,7 +8,7 @@ ASP.NET Core API Backend for ShareX(with Docker support)
 ![ShareXApiSwagger](https://lucaweidmann.de/cdn/sharexapiswagger.png)
 
 ## Getting started
-### Prerequisite
+### Prerequisites
 1. MySQL Database
 2. Connection String in appsettings.json. Should look link this([appsettings.json](https://dl.lucaweidmann.de/wl/?id=yTvXiGnH1Zck94ZiW3DRnt9tB5vwSpCv)):
 ```
@@ -35,7 +35,8 @@ ASP.NET Core API Backend for ShareX(with Docker support)
   }
 }
 ```
-The "dockerFolder" setting needs to be the same as the unraid container path variable
+### :exclamation::exclamation:The "dockerFolder" setting needs to be the same as the unraid container path variable:exclamation::exclamation:
+
 
 ### Unraid Docker
 1. Login to your UnRaid dashboard. 
