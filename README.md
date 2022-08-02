@@ -31,7 +31,7 @@ INSERT INTO `users` (`id`, `username`, `password`) VALUES
 	(1, 'admin', 'admin');
 ```
 
-![ShareXCustomUploader](https://img.lucaweidmann.de/s/sharexauthwithinsomnia.png)
+![ShareXCustomUploader](https://img.lucaweidmann.de/s/b0226eaf-38fd-4b3e-b6ff-ccc00ce1023d.png)
 
 ## 2. Settings file [settings.json](https://dl.lucaweidmann.de/wl/?id=3thPnlps88aEVpkrxs78d0czlaa8hIwg). Copy this file to the unraid appdata folder '/mnt/user/appdata/sharexuploadapi/'
 ```
