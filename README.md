@@ -15,7 +15,7 @@ ASP.NET Core API Backend for ShareX(with Docker support)
 ```
 CREATE TABLE IF NOT EXISTS `uploads` (
   `guid` varchar(50) COLLATE utf8mb4_bin NOT NULL,
-  `filename` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `file_extension` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 ```
@@ -33,18 +33,21 @@ INSERT INTO `users` (`id`, `username`, `password`) VALUES
 
 ![ShareXCustomUploader](https://img.lucaweidmann.de/s/sharexauthwithinsomnia.png)
 
-## 2. Settings file [settings.json](https://dl.lucaweidmann.de/wl/?id=6SMZHXBRQzDx2S5ZZpGeMJS8F4Dw3uFP). Copy this file to the unraid appdata folder '/mnt/user/appdata/sharexuploadapi/'
+## 2. Settings file [settings.json](https://dl.lucaweidmann.de/wl/?id=3thPnlps88aEVpkrxs78d0czlaa8hIwg). Copy this file to the unraid appdata folder '/mnt/user/appdata/sharexuploadapi/'
 ```
 {
+  "uriSettings":{
+	  "public_uri": "https://mypublicurl/myimages/"
+  },
   "pathSettings": {
     "dockerFolder": "/sharex/",
-    "desktopFolder": "//myshare/somefolder/"
+    "desktopFolder": "//myshareorsomething/imgstorage/"
   },
   "dbSettings": {
-    "ip": "ipaddressofdb",
-    "database": "dbname",
-    "username": "username",
-    "password": "password"
+    "ip": "IP",
+    "database": "sharexapi",
+    "username": "sharexapi",
+    "password": "PASSWORD"
   }
 }
 ```
