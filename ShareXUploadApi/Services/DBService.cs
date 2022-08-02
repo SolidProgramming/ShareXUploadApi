@@ -10,6 +10,8 @@ namespace ShareXUploadApi.Services
         Task<FileModel?> GetFileDataAsync(string guid);
         Task<(bool Success, string? ErrorMessage)> InsertShortLinkAsync(string guid, string linkId);
         Task<(bool Success, DataSet? Data, string? ErrorMessage)> SelectAsync(string query, Dictionary<string, dynamic>? @params = null);
+        Task<(bool Success, long InsertedId, string? ErrorMessage)> InsertAsync(string query, Dictionary<string, dynamic>? @params = null);
+        Task<(bool Success, string? ErrorMessage)> UpdateAsync(string query, Dictionary<string, dynamic>? @params = null);
         Task<bool> IsUserAuthenticated(UsersModel user);
 
     }
@@ -305,6 +307,56 @@ namespace ShareXUploadApi.Services
             }
 
             return (true, ds, null);
+        }
+
+        public async Task<(bool Success, long InsertedId, string? ErrorMessage)> InsertAsync(string query, Dictionary<string, dynamic>? @params = null)
+        {
+            await EnsureConnectivity();
+                       
+            MySqlCommand mySqlCommand = new(query, _MysqlConn);
+
+            if (@params is not null)
+            {
+                foreach (KeyValuePair<string, dynamic> param in @params)
+                {
+                    mySqlCommand.Parameters.AddWithValue(param.Key, param.Value);
+                }
+            }
+
+            try
+            {
+                await mySqlCommand.ExecuteNonQueryAsync();
+                return (true, mySqlCommand.LastInsertedId, null);
+            }
+            catch (Exception ex)
+            {
+                return (false, 0, ex.ToString());
+            }
+        }
+
+        public async Task<(bool Success, string? ErrorMessage)> UpdateAsync(string query, Dictionary<string, dynamic>? @params = null)
+        {
+            await EnsureConnectivity();
+
+            MySqlCommand mySqlCommand = new(query, _MysqlConn);
+
+            if (@params is not null)
+            {
+                foreach (KeyValuePair<string, dynamic> param in @params)
+                {
+                    mySqlCommand.Parameters.AddWithValue(param.Key, param.Value);
+                }
+            }
+
+            try
+            {
+                await mySqlCommand.ExecuteNonQueryAsync();
+                return (true, null);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.ToString());
+            }
         }
     }
 }

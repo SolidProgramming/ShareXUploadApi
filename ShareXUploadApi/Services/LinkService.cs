@@ -1,6 +1,8 @@
 ﻿using MySql.Data.MySqlClient;
+using ShareXUploadApi.Classes;
 using System;
 using System.Data;
+using System.Security.Policy;
 
 namespace ShareXUploadApi.Services
 {
@@ -8,7 +10,9 @@ namespace ShareXUploadApi.Services
     {
         Task<(bool Success, string? PublicUrl, string? ErrorMessage)> GetLinkByGuidAsync(string guid);
         Task<(bool Success, string? ShortLink, string? ErrorMessage)> CreateShortLinkAsync(string guid);
+        Task<(bool Success, string? ShortLink, string? ErrorMessage)> CreatePublicShortLinkAsync(string url);
         Task<(bool Success, string? PublicUrl, string? ErrorMessage)> GetLinkByShortLinkIdAsync(string linkId);
+        Task<(bool Success, string? PublicUrl, string? ErrorMessage)> GetLinkByPublicShortLinkIdAsync(string linkId);
     }
     public class LinkService : ILinkService
     {
@@ -95,6 +99,56 @@ namespace ShareXUploadApi.Services
             string publicUrl = Path.Combine(_UriSettings.PublicUri, file.Filename);
 
             return (true, publicUrl, null);
+        }
+
+        public async Task<(bool Success, string? ShortLink, string? ErrorMessage)> CreatePublicShortLinkAsync(string url)
+        {
+            if (_DBService is null) return (false, null, "[LinkService]DB service not initialized");
+            if (string.IsNullOrEmpty(_UriSettings.PublicUri)) return (false, null, "No public uri found in settings");
+
+            string query = "INSERT INTO publicshortlinks (link_url) VALUES (?link_url);";
+
+            Dictionary<string, dynamic> @params = new()
+            {
+                { "?link_url", url }
+            };
+
+            (bool Success, long InsertedId, string? ErrorMessage) = await _DBService.InsertAsync(query, @params);
+
+            string shortUrlId = ShortUrl.Encode(Convert.ToInt32(InsertedId));
+
+            query = "UPDATE publicshortlinks SET link_id = ?link_id WHERE id = ?id";
+
+            @params.Clear();
+            @params.Add("?link_id", shortUrlId);
+            @params.Add("?id", InsertedId);
+
+            (bool UpdateSuccess, string? UpdateErrorMessage) = await _DBService.UpdateAsync(query, @params);
+
+            string publicUrl = "reducemy.link/p/" + shortUrlId;
+
+            return (true, publicUrl, null);
+        }
+
+        public async Task<(bool Success, string? PublicUrl, string? ErrorMessage)> GetLinkByPublicShortLinkIdAsync(string linkId)
+        {
+            if (_DBService is null) return (false, null, "[LinkService]DB service not initialized");
+            if (string.IsNullOrEmpty(_UriSettings.PublicUri)) return (false, null, "No public uri found in settings");
+
+            string query = "SELECT link_url FROM publicshortlinks WHERE link_id = ?link_id;";
+
+            Dictionary<string, dynamic> @params = new()
+            {
+                { "?link_id", linkId }
+           };
+
+            (bool selectSuccess, DataSet? data, string? selectErrorMessage) = await _DBService.SelectAsync(query, @params);
+
+            if (!selectSuccess) return (false, null, selectErrorMessage);
+
+            string url = data.Tables[0].Rows[0]["link_url"].ToString();
+
+            return (true, url, null);
         }
     }
 }

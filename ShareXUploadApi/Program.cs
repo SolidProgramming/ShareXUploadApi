@@ -121,8 +121,8 @@ app.MapGet("urlshortener", [Authorize] async ([FromQuery] string guid, IDBServic
     }
 
     (bool shortLinkSuccess, string? shortLink, string? shortLinkErrorMessage) = await linkService.CreateShortLinkAsync(guid);
-    
-    if(shortLinkSuccess && !string.IsNullOrEmpty(shortLink))
+
+    if (shortLinkSuccess && !string.IsNullOrEmpty(shortLink))
     {
         context.Response.StatusCode = (int)HttpStatusCode.OK;
         await context.Response.WriteAsync(shortLink);
@@ -137,40 +137,53 @@ app.MapGet("urlshortener", [Authorize] async ([FromQuery] string guid, IDBServic
     }
 });
 
-//app.MapGet("urlshortener", [Authorize] async ([FromQuery] string url, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, IConfiguration config, MySqlConnection mysqlConn, HttpRequest request, HttpContext context) =>
-//{
-//    if (string.IsNullOrEmpty(url))
-//    {
-//        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-//        await context.Response.WriteAsync("url empty");
-//        return;
-//    }
-
-//    (bool shortLinkSuccess, string? shortLink, string? shortLinkErrorMessage) = await linkService.CreateShortLinkAsync(guid);
-
-//    if (shortLinkSuccess && !string.IsNullOrEmpty(shortLink))
-//    {
-//        context.Response.StatusCode = (int)HttpStatusCode.OK;
-//        await context.Response.WriteAsync(shortLink);
-//        return;
-//    }
-
-//    if (shortLinkSuccess && !string.IsNullOrEmpty(shortLinkErrorMessage))
-//    {
-//        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-//        await context.Response.WriteAsync(shortLinkErrorMessage);
-//        return;
-//    }
-//});
-
-
-app.MapFallback(async (HttpContext context, ILinkService linkService) =>
+app.MapGet("/p/urlshortener", async ([FromQuery] string url, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, IConfiguration config, MySqlConnection mysqlConn, HttpRequest request, HttpContext context) =>
 {
-    string path = context.Request.Path.ToUriComponent().Trim('/');
+    if (string.IsNullOrEmpty(url))
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        await context.Response.WriteAsync("url empty");
+        return;
+    }
 
-    (bool getLinkSuccess, string? publicUrl, string? getLinkErrorMessage) = await linkService.GetLinkByShortLinkIdAsync(path);
+    (bool shortLinkSuccess, string? shortLink, string? shortLinkErrorMessage) = await linkService.CreatePublicShortLinkAsync(url);
 
-    if(getLinkSuccess && !string.IsNullOrEmpty(publicUrl))
+    if (shortLinkSuccess && !string.IsNullOrEmpty(shortLink))
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.OK;
+        await context.Response.WriteAsync(shortLink);
+        return;
+    }
+
+    if (shortLinkSuccess && !string.IsNullOrEmpty(shortLinkErrorMessage))
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        await context.Response.WriteAsync(shortLinkErrorMessage);
+        return;
+    }
+});
+
+app.MapGet("/p/{linkId}", async (string linkId, HttpContext context, ILinkService linkService) =>
+{
+    //string path = context.Request.Path.ToUriComponent().Trim('/');
+
+    (bool getLinkSuccess, string? publicUrl, string? getLinkErrorMessage) = await linkService.GetLinkByPublicShortLinkIdAsync(linkId);
+
+    if (getLinkSuccess && !string.IsNullOrEmpty(publicUrl))
+    {
+        return Results.Redirect(publicUrl);
+    }
+
+    return Results.NotFound();
+});
+
+app.MapGet("/{linkId}",async (string linkId, HttpContext context, ILinkService linkService) =>
+{
+    //string path = context.Request.Path.ToUriComponent().Trim('/');
+
+    (bool getLinkSuccess, string? publicUrl, string? getLinkErrorMessage) = await linkService.GetLinkByShortLinkIdAsync(linkId);
+
+    if (getLinkSuccess && !string.IsNullOrEmpty(publicUrl))
     {
         return Results.Redirect(publicUrl);
     }
