@@ -111,7 +111,7 @@ async (IFileService fileService, IDBService dbService, ILogger<DBService> logger
 });
 
 
-app.MapGet("urlshortener", async ([FromQuery] string guid, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, IConfiguration config, MySqlConnection mysqlConn, HttpRequest request, HttpContext context) =>
+app.MapGet("urlshortener", [Authorize] async ([FromQuery] string guid, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, IConfiguration config, MySqlConnection mysqlConn, HttpRequest request, HttpContext context) =>
 {
     if (string.IsNullOrEmpty(guid))
     {
@@ -137,6 +137,32 @@ app.MapGet("urlshortener", async ([FromQuery] string guid, IDBService dbService,
     }
 });
 
+//app.MapGet("urlshortener", [Authorize] async ([FromQuery] string url, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, IConfiguration config, MySqlConnection mysqlConn, HttpRequest request, HttpContext context) =>
+//{
+//    if (string.IsNullOrEmpty(url))
+//    {
+//        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+//        await context.Response.WriteAsync("url empty");
+//        return;
+//    }
+
+//    (bool shortLinkSuccess, string? shortLink, string? shortLinkErrorMessage) = await linkService.CreateShortLinkAsync(guid);
+
+//    if (shortLinkSuccess && !string.IsNullOrEmpty(shortLink))
+//    {
+//        context.Response.StatusCode = (int)HttpStatusCode.OK;
+//        await context.Response.WriteAsync(shortLink);
+//        return;
+//    }
+
+//    if (shortLinkSuccess && !string.IsNullOrEmpty(shortLinkErrorMessage))
+//    {
+//        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+//        await context.Response.WriteAsync(shortLinkErrorMessage);
+//        return;
+//    }
+//});
+
 
 app.MapFallback(async (HttpContext context, ILinkService linkService) =>
 {
@@ -151,32 +177,6 @@ app.MapFallback(async (HttpContext context, ILinkService linkService) =>
 
     return Results.NotFound();
 });
-
-
-//app.MapGet("sharex/getsharelink",
-//    async (ILinkService linkService, [FromQuery] string guid) =>
-//{
-//    if (linkService is null) return Results.BadRequest();
-
-//    if (string.IsNullOrEmpty(guid)) return Results.BadRequest();
-
-//    string? Message = await linkService.GetLinkByGuidAsync(guid);
-
-//    if (StatusCode != HttpStatusCode.OK) return Results.BadRequest();
-
-//    return Results.Ok(Message);
-//});
-
-
-//if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
-//{
-//    //// Configure the HTTP request pipeline.
-//    if (app.Environment.IsDevelopment())
-//    {
-//        app.UseSwagger();
-//        app.UseSwaggerUI();
-//    }
-//}
 
 app.UseHttpsRedirection();
 
