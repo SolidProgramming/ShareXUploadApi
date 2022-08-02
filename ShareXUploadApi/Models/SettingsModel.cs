@@ -8,5 +8,8 @@
 
         [JsonPropertyName("pathSettings")]
         public PathSettingsModel PathSettings { get; set; } = default!;
+
+        [JsonPropertyName("uriSettings")]
+        public UriSettingsModel UriSettings { get; set; } = default!;
     }
 }

@@ -20,19 +20,15 @@ namespace ShareXUploadApi.Classes
 
         protected async override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            string? authHeader = Request.Headers["Authorization"].ToString();
-            if (authHeader != null && authHeader.StartsWith("basic", StringComparison.OrdinalIgnoreCase))
-            {
-                string? token = authHeader["Basic ".Length..].Trim();
-
-                string? credentialstring = Encoding.UTF8.GetString(Convert.FromBase64String(token));
-                string[]? credentials = credentialstring.Split(':');
-
-                bool isAuthenticated = await _DBService.IsUserAuthenticated(new() { Username = credentials[0], Password = credentials[1] });
+            string? username = Request.Headers["username"].ToString();
+            string? password = Request.Headers["password"].ToString();
+            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+            {                
+                bool isAuthenticated = await _DBService.IsUserAuthenticated(new() { Username = username, Password = password });
 
                 if (isAuthenticated)
                 {
-                    Claim[]? claims = new[] { new Claim("name", credentials[0]), new Claim(ClaimTypes.Role, "User") };
+                    Claim[]? claims = new[] { new Claim("name", username), new Claim(ClaimTypes.Role, "User") };
                     ClaimsIdentity? identity = new(claims, "Basic");
                     ClaimsPrincipal? claimsPrincipal = new(identity);
                     return await Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(claimsPrincipal, Scheme.Name)));

@@ -11,8 +11,7 @@ namespace ShareXUploadApi.Classes
     {
         public static T? ReadSettings<T>()
         {
-            string path = "";
-
+            string path;
             if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
             {
                 path = @"/app/appdata/settings.json";

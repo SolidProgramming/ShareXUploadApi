@@ -6,7 +6,7 @@ namespace ShareXUploadApi.Services
 {
     public interface IDBService
     {
-        Task InsertFileDataAsync(FileModel file);
+        Task<(bool Success, string? ErrorMessage)> InsertFileDataAsync(FileModel file);
         Task UpdateFileDataAsync();
         Task DeleteFileDataAsync(string guid);
         Task<FileModel?> GetFileDataAsync(string guid);
@@ -77,25 +77,29 @@ namespace ShareXUploadApi.Services
             }
         }
 
-        public async Task InsertFileDataAsync(FileModel file)
+        public async Task<(bool Success, string? ErrorMessage)> InsertFileDataAsync(FileModel file)
         {
             await EnsureConnectivity();
 
-            string query = "INSERT INTO uploads (guid, filename) VALUES (?guid, ?filename);";
+            string query = "INSERT INTO uploads (guid, file_extension) VALUES (?guid, ?file_extension);";
 
             MySqlCommand mySqlCommand = new(query, _MysqlConn);
 
+            string fileExtension = Path.GetExtension(file.FileExtension);
+
             mySqlCommand.Parameters.AddWithValue("?guid", file.Guid);
-            mySqlCommand.Parameters.AddWithValue("?filename", file.Filename);
+            mySqlCommand.Parameters.AddWithValue("?file_extension", fileExtension);
 
             try
             {
                 await mySqlCommand.ExecuteNonQueryAsync();
-                _Logger.LogInformation($"{DateTime.Now}|File: {file.Guid} |=| {file.Filename} registered in database");
+                _Logger.LogInformation($"{DateTime.Now}|File: {file.Guid} |=| {file.FileExtension} registered in database");
+                return (true, null);
             }
             catch (Exception ex)
             {
-                _Logger.LogCritical($"{DateTime.Now}|File: {file.Guid} |=| {file.Filename} could not be registered in database. Error: " + ex.ToString());
+                _Logger.LogCritical($"{DateTime.Now}|File: {file.Guid} |=| {file.FileExtension} could not be registered in database. Error: " + ex.ToString());
+                return (true, ex.ToString());
             }
         }
 
@@ -129,10 +133,10 @@ namespace ShareXUploadApi.Services
             FileModel file = new()
             {
                 Guid = guid,
-                Filename = ds.Tables[0].Rows[0]["filename"].ToString()
+                FileExtension = ds.Tables[0].Rows[0]["file_extension"].ToString()
             };
 
-            _Logger.LogInformation($"{DateTime.Now}|File: {guid} | {file.Filename} read from database");
+            _Logger.LogInformation($"{DateTime.Now}|File: {file.Filename} read from database");
 
             return file;
         }
@@ -190,7 +194,7 @@ namespace ShareXUploadApi.Services
 
             string query = @"CREATE TABLE IF NOT EXISTS `uploads` (
                            `guid` varchar(50) COLLATE utf8mb4_bin NOT NULL,
-                           `filename` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+                           `file_extension` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
                            PRIMARY KEY(`guid`)
                          ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin; ";
 
@@ -224,7 +228,7 @@ namespace ShareXUploadApi.Services
             }
         }
 
-        private bool HasData(DataSet ds)
+        private static bool HasData(DataSet ds)
         {
             if (ds.Tables.Count > 0)
             {

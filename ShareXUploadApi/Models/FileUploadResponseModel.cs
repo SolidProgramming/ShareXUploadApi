@@ -10,5 +10,8 @@
 
         [JsonPropertyName("guid")]
         public string Guid { get; set; } = default!;
+
+        [JsonPropertyName("publicurl")]
+        public string? PublicUrl { get; set; } = default!;
     }
 }

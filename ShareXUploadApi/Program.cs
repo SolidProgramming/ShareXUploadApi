@@ -40,54 +40,88 @@ builder.Services.AddSingleton<MySqlConnection>();
 var app = builder.Build();
 
 app.MapPost("sharex/upload", [Authorize]
-async (IFileService fileService, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, IConfiguration config, MySqlConnection mysqlConn, HttpRequest request) =>
+async (IFileService fileService, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, IConfiguration config, MySqlConnection mysqlConn, HttpRequest request, HttpContext context) =>
 {
+    FileUploadResponseModel apiResponse = new();
+
     if (!request.Form.Files.Any())
     {
-        return Results.BadRequest("No file uploaded");
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        apiResponse.ErrorMessage = "No files uploaded";
+        apiResponse.Success = false;
+        await context.Response.WriteAsJsonAsync(apiResponse);
+        return;
     }
 
     if (request.Form.Files.Count > 1)
     {
-        return Results.BadRequest("Too many files. Limit = 1");
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        apiResponse.ErrorMessage = "To many files uploaded. Upload limit = 1";
+        apiResponse.Success = false;
+        await context.Response.WriteAsJsonAsync(apiResponse);
+        return;
     }
 
     FileModel file = new()
     {
         Guid = Guid.NewGuid().ToString(),
-        Filename = request.Form.Files[0].FileName,
+        FileExtension = request.Form.Files[0].FileName,
         File = request.Form.Files[0]
     };
 
-    await dbService.InsertFileDataAsync(file);
+    (bool insertSuccess, string? insertErrorMessage) = await dbService.InsertFileDataAsync(file);
 
-    (string? Message, HttpStatusCode StatusCode) = await fileService.UploadAsync(file);
-
-    FileUploadResponseModel apiResponse = new()
+    if (!insertSuccess)
     {
-        ErrorMessage = Message,
-        Guid = file.Guid,
-        Success = StatusCode == HttpStatusCode.OK
-    };
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        apiResponse.ErrorMessage = insertErrorMessage;
+        apiResponse.Success = false;
+        await context.Response.WriteAsJsonAsync(apiResponse);
+        return;
+    }
 
-    if (StatusCode == HttpStatusCode.OK) return Results.Ok(JsonSerializer.Serialize(apiResponse));
+    (bool uploadSuccess, string? uploadErrorMessage) = await fileService.UploadAsync(file);
 
-    return Results.Problem(JsonSerializer.Serialize(apiResponse));
+    if (!uploadSuccess)
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        apiResponse.ErrorMessage = uploadErrorMessage;
+        apiResponse.Success = false;
+        await context.Response.WriteAsJsonAsync(apiResponse);
+        return;
+    }
+
+    (bool linkSuccess, string? publicUrl, string? linkErrorMessage) = await linkService.GetLinkByGuidAsync(file.Guid);
+
+    if (!linkSuccess)
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        apiResponse.ErrorMessage = linkErrorMessage;
+        apiResponse.Success = false;
+        await context.Response.WriteAsJsonAsync(apiResponse);
+        return;
+    }
+
+    apiResponse.Success = true;
+    apiResponse.PublicUrl = publicUrl;
+    apiResponse.Guid = file.Guid;
+
+    await context.Response.WriteAsJsonAsync(apiResponse);
 });
 
-app.MapGet("sharex/getsharelink",
-    async (ILinkService linkService, [FromQuery] string guid) =>
-{
-    if (linkService is null) return Results.BadRequest();
+//app.MapGet("sharex/getsharelink",
+//    async (ILinkService linkService, [FromQuery] string guid) =>
+//{
+//    if (linkService is null) return Results.BadRequest();
 
-    if (string.IsNullOrEmpty(guid)) return Results.BadRequest();
+//    if (string.IsNullOrEmpty(guid)) return Results.BadRequest();
 
-    (string? Message, HttpStatusCode StatusCode) = await linkService.GetLinkByGuidAsync(guid);
+//    string? Message = await linkService.GetLinkByGuidAsync(guid);
 
-    if (StatusCode != HttpStatusCode.OK) return Results.BadRequest();
+//    if (StatusCode != HttpStatusCode.OK) return Results.BadRequest();
 
-    return Results.Ok(Message);
-});
+//    return Results.Ok(Message);
+//});
 
 
 //if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")

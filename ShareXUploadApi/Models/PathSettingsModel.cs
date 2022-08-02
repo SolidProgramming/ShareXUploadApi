@@ -7,5 +7,8 @@
 
         [JsonPropertyName("desktopFolder")]
         public string DesktopFolder { get; set; } = default!;
+
+        [JsonPropertyName("public_uri")]
+        public string PublicUri { get; set; } = default!;
     }
 }
