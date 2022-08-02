@@ -11,6 +11,7 @@ using MySql.Data.MySqlClient;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -108,6 +109,49 @@ async (IFileService fileService, IDBService dbService, ILogger<DBService> logger
 
     await context.Response.WriteAsJsonAsync(apiResponse);
 });
+
+
+app.MapGet("urlshortener", async ([FromQuery] string guid, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, IConfiguration config, MySqlConnection mysqlConn, HttpRequest request, HttpContext context) =>
+{
+    if (string.IsNullOrEmpty(guid))
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        await context.Response.WriteAsync("guid empty");
+        return;
+    }
+
+    (bool shortLinkSuccess, string? shortLink, string? shortLinkErrorMessage) = await linkService.CreateShortLinkAsync(guid);
+    
+    if(shortLinkSuccess && !string.IsNullOrEmpty(shortLink))
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.OK;
+        await context.Response.WriteAsync(shortLink);
+        return;
+    }
+
+    if (shortLinkSuccess && !string.IsNullOrEmpty(shortLinkErrorMessage))
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        await context.Response.WriteAsync(shortLinkErrorMessage);
+        return;
+    }
+});
+
+
+app.MapFallback(async (HttpContext context, ILinkService linkService) =>
+{
+    string path = context.Request.Path.ToUriComponent().Trim('/');
+
+    (bool getLinkSuccess, string? publicUrl, string? getLinkErrorMessage) = await linkService.GetLinkByShortLinkIdAsync(path);
+
+    if(getLinkSuccess && !string.IsNullOrEmpty(publicUrl))
+    {
+        return Results.Redirect(publicUrl);
+    }
+
+    return Results.NotFound();
+});
+
 
 //app.MapGet("sharex/getsharelink",
 //    async (ILinkService linkService, [FromQuery] string guid) =>

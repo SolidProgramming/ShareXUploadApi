@@ -7,9 +7,9 @@ namespace ShareXUploadApi.Services
     public interface IDBService
     {
         Task<(bool Success, string? ErrorMessage)> InsertFileDataAsync(FileModel file);
-        Task UpdateFileDataAsync();
-        Task DeleteFileDataAsync(string guid);
         Task<FileModel?> GetFileDataAsync(string guid);
+        Task<(bool Success, string? ErrorMessage)> InsertShortLinkAsync(string guid, string linkId);
+        Task<(bool Success, DataSet? Data, string? ErrorMessage)> SelectAsync(string query, Dictionary<string, dynamic>? @params = null);
         Task<bool> IsUserAuthenticated(UsersModel user);
 
     }
@@ -132,6 +132,7 @@ namespace ShareXUploadApi.Services
 
             FileModel file = new()
             {
+                Id = (int)ds.Tables[0].Rows[0]["id"],
                 Guid = guid,
                 FileExtension = ds.Tables[0].Rows[0]["file_extension"].ToString()
             };
@@ -215,6 +216,14 @@ namespace ShareXUploadApi.Services
             mySqlCommand.CommandText = query;
             await mySqlCommand.ExecuteNonQueryAsync();
 
+            query = @"CREATE TABLE IF NOT EXISTS `shortlinks` (
+                    `guid` varchar(50) COLLATE utf8mb4_bin NOT NULL,
+                    `link_id` varchar(10) COLLATE utf8mb4_bin NOT NULL,
+                    PRIMARY KEY(`guid`)
+                  ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin; ";
+            mySqlCommand.CommandText = query;
+            await mySqlCommand.ExecuteNonQueryAsync();
+
         }
 
         private async Task EnsureConnectivity()
@@ -244,6 +253,58 @@ namespace ShareXUploadApi.Services
             }
 
             return false;
+        }
+
+        public async Task<(bool Success, string? ErrorMessage)> InsertShortLinkAsync(string guid, string linkId)
+        {
+            await EnsureConnectivity();
+
+            string query = "INSERT INTO shortlinks (guid, link_id) VALUES (?guid, ?link_id);";
+
+            MySqlCommand mySqlCommand = new(query, _MysqlConn);
+
+            mySqlCommand.Parameters.AddWithValue("?guid", guid);
+            mySqlCommand.Parameters.AddWithValue("?link_id", linkId);
+
+            try
+            {
+                await mySqlCommand.ExecuteNonQueryAsync();
+                _Logger.LogInformation($"{DateTime.Now}|Shortlink: {guid} |=| {linkId} registered in database");
+                return (true, null);
+            }
+            catch (Exception ex)
+            {
+                _Logger.LogCritical($"{DateTime.Now}Shortlink: {guid} |=| {linkId} could not be registered in database. Error: " + ex.ToString());
+                return (false, ex.ToString());
+            }
+        }
+
+        public async Task<(bool Success, DataSet? Data, string? ErrorMessage)> SelectAsync(string query, Dictionary<string, dynamic>? @params = null)
+        {
+            await EnsureConnectivity();
+
+            MySqlCommand mySqlCommand = new(query, _MysqlConn);
+
+            MySqlDataAdapter adapter = new(mySqlCommand);
+
+            if (@params is not null)
+            {
+                foreach (KeyValuePair<string, dynamic> param in @params)
+                {
+                    mySqlCommand.Parameters.AddWithValue(param.Key, param.Value);
+                }
+            }
+
+            DataSet ds = new();
+
+            await adapter.FillAsync(ds);
+
+            if (!HasData(ds))
+            {
+                return (false, default, "Query successfull but it returned no data");
+            }
+
+            return (true, ds, null);
         }
     }
 }
