@@ -44,9 +44,9 @@ INSERT INTO `users` (`id`, `username`, `password`) VALUES
     "desktopFolder": "//myshareorsomething/imgstorage/"
   },
   "dbSettings": {
-    "ip": "IP",
-    "database": "sharexapi",
-    "username": "sharexapi",
+    "ip": "DBIP",
+    "database": "DBNAME",
+    "username": "USERNAME",
     "password": "PASSWORD"
   }
 }
