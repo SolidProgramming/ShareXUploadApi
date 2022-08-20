@@ -38,7 +38,20 @@ builder.Services.AddSingleton<IDBService, DBService>();
 builder.Services.AddLogging();
 builder.Services.AddSingleton<MySqlConnection>();
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin();
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors();
 
 app.MapPost("sharex/upload", [Authorize]
 async (IFileService fileService, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, IConfiguration config, MySqlConnection mysqlConn, HttpRequest request, HttpContext context) =>
