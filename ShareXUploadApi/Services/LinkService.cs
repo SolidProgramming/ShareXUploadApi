@@ -45,10 +45,10 @@ namespace ShareXUploadApi.Services
         public async Task<(bool Success, string? PublicUrl, string? ErrorMessage)> GetLinkByGuidAsync(string guid)
         {
             if (_DBService is null) return (false, null, "[LinkService]DB service not initialized");
-            if (string.IsNullOrEmpty(_UriSettings.PublicUri)) return (false, null, "No public uri found in settings");
+            if (string.IsNullOrEmpty(_UriSettings?.PublicUri)) return (false, null, "No public uri found in settings");
             FileModel? file = await _DBService.GetFileDataAsync(guid);
 
-            string path = Path.Combine(_UriSettings.PublicUri, file.Filename);
+            string path = Path.Combine(_UriSettings.PublicUri, file?.Filename);
             return (true, path, null);
 
         }
@@ -76,7 +76,7 @@ namespace ShareXUploadApi.Services
         public async Task<(bool Success, string? PublicUrl, string? ErrorMessage)> GetLinkByShortLinkIdAsync(string linkId)
         {
             if (_DBService is null) return (false, null, "[LinkService]DB service not initialized");
-            if (string.IsNullOrEmpty(_UriSettings.PublicUri)) return (false, null, "No public uri found in settings");
+            if (string.IsNullOrEmpty(_UriSettings?.PublicUri)) return (false, null, "No public uri found in settings");
 
             string query = "SELECT uploads.* FROM uploads LEFT JOIN shortlinks ON uploads.guid = shortlinks.guid WHERE shortlinks.link_Id = ?link_id;";
 
@@ -104,7 +104,7 @@ namespace ShareXUploadApi.Services
         public async Task<(bool Success, string? ShortLink, string? ErrorMessage)> CreatePublicShortLinkAsync(string url)
         {
             if (_DBService is null) return (false, null, "[LinkService]DB service not initialized");
-            if (string.IsNullOrEmpty(_UriSettings.PublicUri)) return (false, null, "No public uri found in settings");
+            if (string.IsNullOrEmpty(_UriSettings?.PublicUri)) return (false, null, "No public uri found in settings");
 
             string query = "INSERT INTO publicshortlinks (link_url) VALUES (?link_url);";
 
