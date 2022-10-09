@@ -12,6 +12,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using System.Security.Policy;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,7 +55,7 @@ var app = builder.Build();
 app.UseCors();
 
 app.MapPost("sharex/upload", [Authorize]
-async (IFileService fileService, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, IConfiguration config, HttpRequest request, HttpContext context) =>
+async (IFileService fileService, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, HttpRequest request, HttpContext context) =>
 {
     FileUploadResponseModel apiResponse = new();
 
@@ -122,6 +123,7 @@ async (IFileService fileService, IDBService dbService, ILogger<DBService> logger
 
     await context.Response.WriteAsJsonAsync(apiResponse);
 });
+
 
 
 app.MapGet("urlshortener", [Authorize] async ([FromQuery] string guid, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, IConfiguration config, HttpRequest request, HttpContext context) =>
