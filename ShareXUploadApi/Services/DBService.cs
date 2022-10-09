@@ -218,7 +218,7 @@ namespace ShareXUploadApi.Services
             {
                 mySqlConn.Open();
 
-                _Logger.LogInformation("Database reachablility ensured");              
+                _Logger.LogInformation("Database reachablility ensured");
 
                 return true;
             }
@@ -260,9 +260,15 @@ namespace ShareXUploadApi.Services
                 mySqlCommand.CommandText = query;
                 await mySqlCommand.ExecuteNonQueryAsync();
 
-                query = @"INSERT INTO `users` (`id`, `username`, `password`) VALUES (1, 'admin', 'admin');";
-                mySqlCommand.CommandText = query;
-                await mySqlCommand.ExecuteNonQueryAsync();
+                query = "SELECT id FROM users;";
+                (bool selectUserSuccess, _, _) = await SelectAsync(query);
+
+                if (!selectUserSuccess)
+                {
+                    query = @"INSERT INTO `users` (`id`, `username`, `password`) VALUES (1, 'admin', 'admin');";
+                    mySqlCommand.CommandText = query;
+                    await mySqlCommand.ExecuteNonQueryAsync();
+                }
 
                 query = @"CREATE TABLE IF NOT EXISTS `shortlinks` (
                     `guid` varchar(50) COLLATE utf8mb4_bin NOT NULL,
