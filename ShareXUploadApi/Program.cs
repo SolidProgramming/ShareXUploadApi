@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using System.Security.Policy;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ILinkService, LinkService>();
 builder.Services.AddSingleton<IFileService, FileService>();
 builder.Services.AddSingleton<IDBService, DBService>();
+builder.Services.AddSingleton<IQRCodeService, QRCodeService>();
 builder.Services.AddLogging();
 builder.Services.AddSingleton<MySqlConnection>();
 
@@ -124,7 +126,24 @@ async (IFileService fileService, IDBService dbService, ILogger<DBService> logger
     await context.Response.WriteAsJsonAsync(apiResponse);
 });
 
+app.MapGet("qrgenerator", async ([FromQuery] string url, IQRCodeService qrCodeService, ILogger<QRCodeService> loggerQRCodeService, HttpContext context) =>
+{
+    (bool success, FileContentResult? file, string? errorMessage) = await qrCodeService.GenerateQRCode(url);
 
+    if (!success)
+    {
+        if (!string.IsNullOrEmpty(errorMessage))
+            return Results.Problem(errorMessage);
+
+        return Results.Problem();
+    }
+
+    if (file is null)
+        return Results.Problem("File could not be generated");
+
+    return Results.File(file.FileContents, file.ContentType);
+
+});
 
 app.MapGet("urlshortener", [Authorize] async ([FromQuery] string guid, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, HttpRequest request, HttpContext context) =>
 {
@@ -192,7 +211,7 @@ app.MapGet("/p/{linkId}", async (string linkId, HttpContext context, ILinkServic
     return Results.NotFound();
 });
 
-app.MapGet("/{linkId}",async (string linkId, HttpContext context, ILinkService linkService) =>
+app.MapGet("/{linkId}", async (string linkId, HttpContext context, ILinkService linkService) =>
 {
     //string path = context.Request.Path.ToUriComponent().Trim('/');
 

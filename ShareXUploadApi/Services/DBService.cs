@@ -330,7 +330,7 @@ namespace ShareXUploadApi.Services
             }
             catch (Exception ex)
             {
-                _Logger.LogCritical($"{DateTime.Now}Shortlink: {guid} |=| {linkId} could not be registered in database. Error: " + ex.ToString());
+                _Logger.LogCritical($"{DateTime.Now}|Shortlink: {guid} |=| {linkId} could not be registered in database. Error: " + ex.ToString());
                 return (false, ex.ToString());
             }
             finally
