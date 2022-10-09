@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `uploads` (
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 ```
-#### The table needed for authentication users is created on the first request if the table doesn't exist(the default user is admin:admin).
+#### The table needed for authentication users is created on the first request if the table doesn't exist(the default user is <i>admin:admin</i>).
 ```
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int NOT NULL AUTO_INCREMENT,
