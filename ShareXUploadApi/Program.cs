@@ -126,7 +126,7 @@ async (IFileService fileService, IDBService dbService, ILogger<DBService> logger
 
 
 
-app.MapGet("urlshortener", [Authorize] async ([FromQuery] string guid, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, IConfiguration config, HttpRequest request, HttpContext context) =>
+app.MapGet("urlshortener", [Authorize] async ([FromQuery] string guid, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, HttpRequest request, HttpContext context) =>
 {
     if (string.IsNullOrEmpty(guid))
     {
@@ -152,7 +152,7 @@ app.MapGet("urlshortener", [Authorize] async ([FromQuery] string guid, IDBServic
     }
 });
 
-app.MapGet("/p/urlshortener", async ([FromQuery] string url, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, IConfiguration config, HttpRequest request, HttpContext context) =>
+app.MapGet("/p/urlshortener", async ([FromQuery] string url, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, HttpRequest request, HttpContext context) =>
 {
     if (string.IsNullOrEmpty(url))
     {
