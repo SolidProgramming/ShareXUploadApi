@@ -4,9 +4,6 @@ ASP.NET Core API Backend for ShareX(with Docker support)
 ## [Docker Hub](https://hub.docker.com/r/solidprogramming/sharexuploadapi)
 ## [ShareX Custom Uploader Config](https://dl.lucaweidmann.de/wl/?id=yxKbrNgBYilPXO4bZijA03wdtThDiJPY)
 
-![ShareXApiLogScreenshot](https://reducemy.link/Nww)
-![ShareXCustomUploader](https://reducemy.link/Nwx)
-
 ## Getting started
 ### Prerequisites
 ## 1. MySQL Database
