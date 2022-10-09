@@ -2,7 +2,7 @@
 ASP.NET Core API Backend for ShareX(with Docker support)
 
 ![](https://reducemy.link/4WRH67)
-![](reducemy.link/4WRH69)
+![](https://reducemy.link/4WRH69)
 
 ## [Docker Hub](https://hub.docker.com/r/solidprogramming/sharexuploadapi)
 ## [ShareX Custom Uploader Config](https://dl.lucaweidmann.de/wl/?id=yxKbrNgBYilPXO4bZijA03wdtThDiJPY)
