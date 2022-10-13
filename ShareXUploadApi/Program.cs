@@ -73,7 +73,7 @@ async (IFileService fileService, IDBService dbService, ILogger<DBService> logger
     if (request.Form.Files.Count > 1)
     {
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-        apiResponse.ErrorMessage = "To many files uploaded. Upload limit = 1";
+        apiResponse.ErrorMessage = "Too many files uploaded. Upload limit = 1";
         apiResponse.Success = false;
         await context.Response.WriteAsJsonAsync(apiResponse);
         return;
