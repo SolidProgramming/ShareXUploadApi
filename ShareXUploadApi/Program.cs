@@ -14,9 +14,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using System.Security.Policy;
 using System;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseKestrel(kestrelOptions => kestrelOptions.Limits.MaxRequestBodySize = 524288000);
 // Add services to the container.
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -51,6 +53,12 @@ builder.Services.AddCors(options =>
         policy.AllowAnyMethod();
     });
 });
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = int.MaxValue;
+});
+
 
 var app = builder.Build();
 

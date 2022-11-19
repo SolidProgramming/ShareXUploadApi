@@ -67,7 +67,7 @@ namespace ShareXUploadApi.Services
 
             if (shortLinkInsertSuccess)
             {
-                return (true, "reducemy.link/" + shorturlId, null);
+                return (true, "https://reducemy.link/" + shorturlId, null);
             }
 
             return (false, null, shortLinkInsertErrorMessage);
@@ -125,7 +125,7 @@ namespace ShareXUploadApi.Services
 
             (bool UpdateSuccess, string? UpdateErrorMessage) = await _DBService.UpdateAsync(query, @params);
 
-            string publicUrl = "reducemy.link/p/" + shortUrlId;
+            string publicUrl = "https://reducemy.link/p/" + shortUrlId;
 
             return (true, publicUrl, null);
         }
