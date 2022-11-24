@@ -65,7 +65,7 @@ var app = builder.Build();
 app.UseCors();
 
 app.MapPost("sharex/upload", [Authorize]
-async (IFileService fileService, IDBService dbService, ILogger<DBService> loggerDBService, ILogger<FileService> loggerFileService, ILinkService linkService, HttpRequest request, HttpContext context) =>
+async (IFileService fileService, IDBService dbService, ILinkService linkService, HttpRequest request, HttpContext context) =>
 {
     FileUploadResponseModel apiResponse = new();
 
