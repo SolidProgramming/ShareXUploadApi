@@ -2,18 +2,12 @@ global using ShareXUploadApi.Services;
 global using System.Net;
 global using ShareXUploadApi.Classes;
 global using ShareXUploadApi.Models;
-global using Microsoft.EntityFrameworkCore.Design;
 //global using ShareXUploadApi.Interfaces;
 global using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using System.Security.Policy;
-using System;
 using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,10 +19,10 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
-//if(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
+//if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") != "true")
 //{
-//    builder.Services.AddEndpointsApiExplorer();
-//    builder.Services.AddSwaggerGen();
+    //builder.Services.AddEndpointsApiExplorer();
+    //builder.Services.AddSwaggerGen();
 //}
 
 builder.Services.AddAuthentication("BasicAuthentication")

@@ -1,9 +1,5 @@
 ﻿using System.Text.Json;
-using System.Linq;
-using System.Reflection.Metadata;
 using System.Reflection;
-using System.Diagnostics;
-using System.Data.Common;
 
 namespace ShareXUploadApi.Classes
 {

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Crypto.Tls;
 
 namespace ShareXUploadApi.Services
 {

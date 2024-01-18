@@ -1,8 +1,4 @@
-﻿using MySql.Data.MySqlClient;
-using ShareXUploadApi.Classes;
-using System;
-using System.Data;
-using System.Security.Policy;
+﻿using System.Data;
 
 namespace ShareXUploadApi.Services
 {

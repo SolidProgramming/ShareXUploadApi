@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
-using MySqlX.XDevAPI;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using System.Text;
-using Ubiety.Dns.Core;
 
 namespace ShareXUploadApi.Classes
 {

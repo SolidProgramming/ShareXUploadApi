@@ -1,7 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
 using System.Data;
-using System.Reflection.Metadata.Ecma335;
 
 namespace ShareXUploadApi.Services
 {
