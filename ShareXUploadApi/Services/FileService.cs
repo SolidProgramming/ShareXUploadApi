@@ -57,7 +57,7 @@
 
                  try
                  {
-                     using Stream stream = new FileStream(folderPath + file.Guid + fileExtension, FileMode.Create);
+                     using Stream stream = new FileStream(Path.Combine(folderPath, file.Guid) + fileExtension, FileMode.Create);
                      file.File.CopyTo(stream);
                      return (true, null);
                  }
