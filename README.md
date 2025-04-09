@@ -1,3 +1,5 @@
+[![.NET](https://github.com/SolidProgramming/ShareXUploadApi/actions/workflows/dotnet.yml/badge.svg)](https://github.com/SolidProgramming/ShareXUploadApi/actions/workflows/dotnet.yml)
+
 # ShareXUploadApi
 ASP.NET Core API Backend for ShareX(with Docker support)
 
